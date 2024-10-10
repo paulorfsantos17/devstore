@@ -8,7 +8,7 @@ interface ProductPageProps {
   params: { slug: string }
 }
 
-async function getProductBySlug(slug: string): Promise<Product> {
+export async function getProductBySlug(slug: string): Promise<Product> {
   const response = await api(`/products/${slug}`, {
     next: { revalidate: 60 * 60 * 1 }, // 1 hour
   })
