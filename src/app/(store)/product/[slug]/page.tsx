@@ -3,6 +3,7 @@ import React from 'react'
 
 import { api } from '@/app/data/api'
 import type { Product } from '@/app/types/product'
+import AddToCartButton from '@/components/add-to-card-button'
 
 interface ProductPageProps {
   params: { slug: string }
@@ -102,13 +103,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </button>
           </div>
         </div>
-
-        <button
-          type="button"
-          className="mt-8 flex h-12 items-center justify-center rounded-full bg-emerald-600 font-semibold text-white"
-        >
-          Adicionar ao carrinho
-        </button>
+        <AddToCartButton productId={product.id} />
       </div>
     </div>
   )
