@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import type { Product } from '@/app/@types/product'
 import { api } from '@/app/data/api'
+import type { Product } from '@/app/types/product'
 
 async function getFeaturedProducts(): Promise<Product[]> {
   const response = await api('/products/featured', {

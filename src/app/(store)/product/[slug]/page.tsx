@@ -1,12 +1,47 @@
 import Image from 'next/image'
 import React from 'react'
 
-export default function ProductPage() {
+import { api } from '@/app/data/api'
+import type { Product } from '@/app/types/product'
+
+interface ProductPageProps {
+  params: { slug: string }
+}
+
+async function getProductBySlug(slug: string): Promise<Product> {
+  const response = await api(`/products/${slug}`, {
+    next: { revalidate: 60 * 60 * 1 }, // 1 hour
+  })
+
+  const product = await response.json()
+
+  return product
+}
+
+export async function generateMetadata({ params }: ProductPageProps) {
+  const product = await getProductBySlug(params.slug)
+
+  return {
+    title: product.title,
+  }
+}
+
+export async function generateStaticParams() {
+  const responseProductFeatured = await api('/products/featured')
+  const productsFeatured: Product[] = await responseProductFeatured.json()
+
+  return productsFeatured.map((product) => ({ slug: product.slug }))
+}
+export default async function ProductPage({ params }: ProductPageProps) {
+  const product = await getProductBySlug(params.slug)
+
+  const priceProductInInstallments = product.price / 12
+
   return (
     <div className="relative grid max-h-[860px] grid-cols-3">
       <div className="col-span-2 overflow-hidden">
         <Image
-          src="/camiseta-dowhile-2022.png"
+          src={product.image}
           width={1000}
           height={1000}
           quality={100}
@@ -15,20 +50,26 @@ export default function ProductPage() {
       </div>
 
       <div className="flex flex-col justify-center px-12">
-        <h1 className="text-3xl font-bold leading-tight">
-          Moletom Never Stop Learning
-        </h1>
+        <h1 className="text-3xl font-bold leading-tight">{product.title}</h1>
         <p className="mt-2 leading-relaxed text-zinc-400">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum at
-          corporis eius nemo explicabo culpa.
+          {product.description}
         </p>
 
         <div className="mt-8 flex items-center gap-3">
           <span className="inline-block rounded-full bg-violet-500 px-5 py-2.5">
-            $129
+            {product.price.toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+              minimumFractionDigits: 2,
+            })}
           </span>
           <span className="text-sm text-zinc-400">
-            Em 12x s/ juros de R$10,75
+            Em 12x s/ juros de &nbsp;
+            {priceProductInInstallments.toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+              minimumFractionDigits: 2,
+            })}
           </span>
         </div>
 
